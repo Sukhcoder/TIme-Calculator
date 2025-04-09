@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Days Left Calculator</title>
+  <link rel="icon" type="image/x-icon" href="hourglass.png">
+  <style>
+    body {
+      background-color: #ff9090;
+      color: #e3e3e3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+    }
+    .layout-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+    }
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffd96a;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 500px;
+    }
+    input {
+      width: 200px;
+      height: 30px;
+    }
+    button {
+      background-color: #f34949;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 17px;
+      margin-left: 10px;
+      transition: background-color 0.3s ease;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: white;
+      color: #f34949;
+      border: 1px solid #f34949;
+      font-weight: bolder;
+    }
+    h2 {
+      color: #8e3343;
+    }
+    p {
+      color: black;
+        font-size: 20px;
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
+    }
+    .clocks-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .clock {
+      background-color: #ffd96a;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 250px;
+      font-size: 20px;
+      color: black;
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout-container">
+    <div class="clocks-container">
+      <div class="clock" id="california">California</div>
+      <div class="clock" id="newyork">New York</div>
+      <div class="clock" id="london">London</div>
+      <div class="clock" id="moscow">Moscow</div>
+    </div>
+
+    <div class="center-container">
+      <h2>Time left for...</h2>
+      <input type="date" id="dateInput" />
+      <button onclick="startCountdown()">is</button>
+      <p id="result"></p>
+    </div>
+
+    <div class="clocks-container">
+      <div class="clock" id="india">New Delhi</div>
+      <div class="clock" id="bangkok">Bangkok</div>
+      <div class="clock" id="sydney">Sydney</div>
+      <div class="clock" id="dubai">Dubai</div>
+    </div>
+  </div>
+  <script>
+    let countdownInterval;
+
+    function startCountdown() {
+      clearInterval(countdownInterval);
+      const input = document.getElementById('dateInput').value;
+      const result = document.getElementById('result');
+
+      if (!input) {
+        alert("Please select a date!");
+        return;
+      }
+
+      const targetDate = new Date(input);
+      targetDate.setHours(0, 0, 0, 0); // Always set to 12:00 AM
+
+      countdownInterval = setInterval(() => {
+        const now = new Date();
+        let diff = targetDate - now;
+
+        if (diff <= 0) {
+          result.textContent = diff > -1000 ? "🎉 It's the time !" : "The day is passed.";
+          clearInterval(countdownInterval);
+          return;
+        }
+
+        const units = calculateTimeDifference(now, targetDate);
+        const parts = [];
+
+        if (units.years) parts.push(`${units.years} year${units.years !== 1 ? 's' : ''}`);
+        if (units.months || parts.length) parts.push(`${units.months} month${units.months !== 1 ? 's' : ''}`);
+        if (units.days || parts.length) parts.push(`${units.days} day${units.days !== 1 ? 's' : ''}`);
+        if (units.hours || parts.length) parts.push(`${units.hours} hour${units.hours !== 1 ? 's' : ''}`);
+        if (units.minutes || parts.length) parts.push(`${units.minutes} minute${units.minutes !== 1 ? 's' : ''}`);
+        parts.push(`${units.seconds} second${units.seconds !== 1 ? 's' : ''}`);
+
+        result.textContent = `⏳ ${parts.join(', ')} left`;
+      }, 1000);
+    }
+
+    function calculateTimeDifference(start, end) {
+      let years = end.getFullYear() - start.getFullYear();
+      let months = end.getMonth() - start.getMonth();
+      let days = end.getDate() - start.getDate();
+      let hours = end.getHours() - start.getHours();
+      let minutes = end.getMinutes() - start.getMinutes();
+      let seconds = end.getSeconds() - start.getSeconds();
+
+      if (seconds < 0) {
+        seconds += 60;
+        minutes--;
+      }
+      if (minutes < 0) {
+        minutes += 60;
+        hours--;
+      }
+      if (hours < 0) {
+        hours += 24;
+        days--;
+      }
+      if (days < 0) {
+        const prevMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+        days += prevMonth.getDate();
+        months--;
+      }
+      if (months < 0) {
+        months += 12;
+        years--;
+      }
+
+      return { years, months, days, hours, minutes, seconds };
+    }
+  </script>
+
+  <script>
+    const timezones = {
+      london: 'Europe/London',
+      dubai: 'Asia/Dubai',
+      india: 'Asia/Kolkata',
+      bangkok: 'Asia/Bangkok',
+      sydney: 'Australia/Sydney',
+      california: 'America/Los_Angeles',
+      newyork: 'America/New_York',
+      moscow: 'Europe/Moscow'
+    };
+
+    function updateClocks() {
+      for (const city in timezones) {
+        const now = new Date().toLocaleString("en-US", {
+          timeZone: timezones[city],
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+        document.getElementById(city).textContent = `${capitalize(city)}: ${now}`;
+      }
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    updateClocks();
+    setInterval(updateClocks, 1000);
+  </script>
+</body>
+</html>
